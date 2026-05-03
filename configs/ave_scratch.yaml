@@ -1,0 +1,81 @@
+# AVE Dataset Configuration
+# Audio-visual event localization (28 classes)
+# Audio is typically the dominant modality
+
+# Dataset
+dataset:
+  name: ave
+  root: data/AVE
+  num_classes: 28
+  modalities: [audio, visual]
+
+# Model
+model:
+  backbone: resnet18
+  pretrained: false
+  feature_dim: 512
+  fusion_type: concat
+  fusion_dim: 512
+
+# Training
+training:
+  epochs: 100
+  batch_size: 64
+  num_workers: 4
+
+  # Optimizer
+  optimizer: sgd
+  lr: 0.001
+  momentum: 0.9
+  weight_decay: 0.0001
+
+  # LR scheduler
+  scheduler: step
+  step_size: 40
+  gamma: 0.1
+
+# ASGML hyperparameters
+asgml:
+  enabled: true
+
+  # Mode settings
+  asgml_mode: frequency
+
+  # Staleness/frequency bounds
+  tau_base: 2.0
+  tau_min: 1.0
+  tau_max: 4.0  # As per ARL paper (T=4)
+  max_staleness_ratio: 3.0  # κ: max τ_i/τ_j ratio (Stale Fusion constraint)
+
+  # Signal weighting
+  beta: 0.5
+
+  # Gradient compensation
+  lambda_comp: 0.1
+
+  # Unimodal regularization weight
+  # NOTE: Reduced from 4.0 to 1.0 to prevent unimodal loss from dominating
+  gamma: 1.0
+
+  # Adaptive mode threshold
+  threshold_delta: 0.1
+
+  # Signal source for adaptive mode
+  signal_source: dual
+  signal_blend: 0.5
+
+  # Probe settings
+  probe_type: linear
+  probe_lr: 0.001
+  eval_freq: 100
+  probe_train_steps: 50
+
+# Logging
+logging:
+  log_interval: 20
+  save_interval: 10
+  tensorboard: true
+
+# Evaluation
+evaluation:
+  metrics: [accuracy, f1_macro]

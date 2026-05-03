@@ -1,0 +1,94 @@
+# CMU-MOSEI Dataset Configuration
+# Multimodal sentiment analysis (3 modalities: text, audio, vision)
+# 3-class sentiment: negative / neutral / positive
+
+# Dataset
+dataset:
+  name: mosei
+  root: data/MOSEI
+  num_classes: 3
+  modalities: [text, audio, vision]
+  # Pre-extracted feature dimensions (auto-detected from pickle at runtime)
+  # MMSA format: text=768, audio=33, vision=709
+  # InfoReg format: text=300, audio=74, vision=35
+  text_dim: 768
+  audio_dim: 33
+  visual_dim: 709
+
+# Model
+model:
+  backbone: mlp       # MLP encoders for pre-extracted features (not resnet18)
+  pretrained: false
+  feature_dim: 512    # Hidden dimension for MLP encoders
+  fusion_type: concat
+  fusion_dim: 512
+  dropout: 0.3        # Dropout in MLP encoders (matching InfoReg)
+
+# Training
+training:
+  epochs: 100
+  batch_size: 64
+  num_workers: 4
+
+  # Optimizer (Adam for pre-extracted features, matching InfoReg)
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0001
+
+  # LR scheduler
+  scheduler: step
+  step_size: 40
+  gamma: 0.1
+
+# ASGML hyperparameters
+asgml:
+  enabled: true
+
+  # Mode settings
+  asgml_mode: frequency
+
+  # Staleness/frequency bounds
+  tau_base: 2.0
+  tau_min: 1.0
+  tau_max: 4.0
+  max_staleness_ratio: 3.0
+
+  # Signal weighting
+  beta: 0.5
+
+  # Gradient compensation
+  lambda_comp: 0.1
+
+  # Unimodal regularization weight
+  gamma: 1.0
+
+  # Adaptive mode threshold
+  threshold_delta: 0.1
+
+  # Signal source for adaptive mode
+  signal_source: dual
+  signal_blend: 0.5
+
+  # Probe settings
+  probe_type: linear
+  probe_lr: 0.001
+  eval_freq: 100
+  probe_train_steps: 50
+
+  # Continuous mode settings
+  continuous_alpha: 0.5
+  continuous_scale_max: 2.0
+  continuous_noise_sigma: 0.0
+  continuous_scale_ema: 0.3
+  continuous_eval_freq: 20
+  continuous_probe_train_steps: 10
+
+# Logging
+logging:
+  log_interval: 20
+  save_interval: 10
+  tensorboard: true
+
+# Evaluation
+evaluation:
+  metrics: [accuracy, f1_macro]

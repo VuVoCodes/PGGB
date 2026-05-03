@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.Python
+.pytest_cache/
+.mypy_cache/
+
+# Distribution
+build/
+dist/
+*.whl
+
+# Virtualenvs
+venv/
+.venv/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Outputs / logs
+outputs/
+logs/
+runs/
+tensorboard/
+*.log
+checkpoints/
+*.pt
+*.pth
+wandb/
+
+# Data (do not commit large datasets)
+data/
+*.zip
+*.tar
+*.tar.gz
+*.npz
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
+
+# LaTeX intermediate (if anyone clones to compile paper)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+
+# Misc
+.cache/

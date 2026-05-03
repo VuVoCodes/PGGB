@@ -1,0 +1,67 @@
+# CMU-MOSI Dataset Configuration
+# Multimodal sentiment analysis (2 classes: positive/negative)
+# Pre-extracted features: text (GloVe 300d), audio (COVAREP 74d), vision (FACET 35d)
+
+# Dataset
+dataset:
+  name: mosi
+  root: data/CMU-MOSI/mosi
+  num_classes: 2
+  modalities: [text, audio, visual]
+  text_dim: 300
+  audio_dim: 74
+  visual_dim: 35
+
+# Model — MLP encoders for pre-extracted features (same as MOSEI)
+model:
+  backbone: mlp
+  pretrained: false
+  feature_dim: 512
+  fusion_type: concat
+  fusion_dim: 512
+  dropout: 0.3
+
+# Training
+training:
+  epochs: 100
+  batch_size: 64
+  num_workers: 4
+
+  # Optimizer
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0001
+
+  # LR scheduler
+  scheduler: step
+  step_size: 40
+  gamma: 0.1
+
+# ASGML hyperparameters
+asgml:
+  enabled: true
+  asgml_mode: frequency
+  tau_base: 2.0
+  tau_min: 1.0
+  tau_max: 4.0
+  max_staleness_ratio: 3.0
+  beta: 0.5
+  lambda_comp: 0.1
+  gamma: 1.0
+  threshold_delta: 0.1
+  signal_source: dual
+  signal_blend: 0.5
+  probe_type: linear
+  probe_lr: 0.001
+  eval_freq: 100
+  probe_train_steps: 50
+
+# Logging
+logging:
+  log_interval: 20
+  save_interval: 10
+  tensorboard: true
+
+# Evaluation
+evaluation:
+  metrics: [accuracy, f1_macro]

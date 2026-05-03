@@ -1,0 +1,68 @@
+# Twitter15 Aspect-Based Sentiment Analysis Configuration
+# Yu & Jiang, IJCAI 2019 (TomBERT)
+# 3-class sentiment using pre-extracted BERT (768d) + ResNet18 (512d)
+# Splits: 3,179 train / 1,122 val / 1,037 test (matching AUG paper)
+
+dataset:
+  name: twitter
+  root: data/Twitter15
+  num_classes: 3
+  modalities: [text, image]
+  text_dim: 768       # BERT-base
+  image_dim: 512      # ResNet18 pooled
+
+# Model — MLP encoders on pre-extracted features (mirrors MOSEI setup)
+model:
+  backbone: mlp
+  pretrained: false
+  feature_dim: 512
+  fusion_type: concat
+  fusion_dim: 512
+  dropout: 0.3
+
+# Training
+training:
+  epochs: 100
+  batch_size: 64
+  num_workers: 4
+
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0001
+
+  scheduler: step
+  step_size: 40
+  gamma: 0.1
+
+# ASGML hyperparameters (same as MOSEI)
+asgml:
+  enabled: true
+  asgml_mode: frequency
+  tau_base: 2.0
+  tau_min: 1.0
+  tau_max: 4.0
+  max_staleness_ratio: 3.0
+  beta: 0.5
+  lambda_comp: 0.1
+  gamma: 1.0
+  threshold_delta: 0.1
+  signal_source: dual
+  signal_blend: 0.5
+  probe_type: linear
+  probe_lr: 0.001
+  eval_freq: 100
+  probe_train_steps: 50
+  continuous_alpha: 0.5
+  continuous_scale_max: 2.0
+  continuous_noise_sigma: 0.0
+  continuous_scale_ema: 0.3
+  continuous_eval_freq: 20
+  continuous_probe_train_steps: 10
+
+logging:
+  log_interval: 20
+  save_interval: 10
+  tensorboard: true
+
+evaluation:
+  metrics: [accuracy, f1_macro]

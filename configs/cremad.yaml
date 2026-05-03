@@ -1,0 +1,96 @@
+# CREMA-D Dataset Configuration
+# Audio-visual emotion recognition (6 classes)
+# Audio is typically the dominant modality
+
+# Dataset
+dataset:
+  name: cremad
+  root: data/CREMA-D
+  num_classes: 6
+  modalities: [audio, visual]
+  # OGM-GE settings: extract 1 frame per second, select 1 frame for training
+  fps: 1
+  num_frames: 1
+
+# Model
+model:
+  backbone: resnet18
+  pretrained: false  # OGM-GE trains from scratch (kaiming/xavier init)
+  feature_dim: 512
+  fusion_type: concat
+  fusion_dim: 512
+
+# Training
+training:
+  epochs: 100
+  batch_size: 64
+  num_workers: 4
+
+  # Optimizer
+  optimizer: sgd
+  lr: 0.001
+  momentum: 0.9
+  weight_decay: 0.0001
+
+  # LR scheduler
+  scheduler: step
+  step_size: 70  # Updated for 100 epochs (drop LR at 70% of training)
+  gamma: 0.1
+
+# ASGML hyperparameters
+asgml:
+  enabled: true
+
+  # Mode settings
+  asgml_mode: frequency  # "frequency", "staleness", or "continuous" (for adaptive mode)
+
+  # Staleness/frequency bounds
+  tau_base: 2.0
+  tau_min: 1.0
+  tau_max: 8.0  # Higher for CREMA-D as per ARL paper (T=8)
+  max_staleness_ratio: 3.0  # κ: max τ_i/τ_j ratio (Stale Fusion constraint)
+
+  # Signal weighting
+  beta: 0.5  # Weight for gradient magnitude (1-β for loss descent)
+
+  # Gradient compensation
+  lambda_comp: 0.1
+
+  # Unimodal regularization weight
+  # NOTE: Reduced from 4.0 to 1.0 to prevent unimodal loss from dominating
+  # With γ=4.0, unimodal losses were ~89% of total loss, causing overfitting
+  gamma: 1.0
+
+  # Adaptive mode threshold
+  threshold_delta: 0.1  # Utilization gap threshold to trigger adaptation
+
+  # Signal source for adaptive mode
+  # "dual"  - Design doc method: S_i(t) = β·G_i(t) + (1-β)·D_i(t) (gradient + loss descent)
+  # "probe" - Probe-based method: uses probe accuracy to detect dominance
+  # "both"  - Combines dual-signal and probe signals
+  signal_source: dual
+  signal_blend: 0.5  # Weight for dual-signal when signal_source="both" (α)
+
+  # Probe settings
+  probe_type: linear  # "linear" or "mlp_1layer"
+  probe_lr: 0.001
+  eval_freq: 100  # Evaluate probes every N batches
+  probe_train_steps: 50  # Steps to train probe per evaluation
+
+  # Continuous mode parameters (probe-guided gradient scaling)
+  continuous_alpha: 0.5       # Boost strength (0=none, 1=max boost of weak modality)
+  continuous_scale_max: 2.0   # Maximum gradient scale for weakest modality
+  continuous_noise_sigma: 0.0 # Gaussian noise injection (0=off)
+  continuous_scale_ema: 0.3   # EMA smoothing for scale transitions
+  continuous_eval_freq: 20    # More frequent probe evaluation for continuous mode
+  continuous_probe_train_steps: 10  # Reduced probe steps (5x more frequent evals)
+
+# Logging
+logging:
+  log_interval: 20
+  save_interval: 10
+  tensorboard: true
+
+# Evaluation
+evaluation:
+  metrics: [accuracy, f1_macro]
