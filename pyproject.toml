@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Vo Quoc Vu", email = "s3575819@rmit.edu.vn"},
+    {name = "Vu Vo", email = "s3575819@rmit.edu.vn"},
     {name = "Haytham Fayek", email = "haytham.fayek@rmit.edu.au"},
     {name = "Thuy Nguyen", email = "thuy.nguyen43@rmit.edu.vn"},
 ]

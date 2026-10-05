@@ -204,7 +204,7 @@ class TextEncoder(nn.Module):
 
 
 class MLPEncoder(nn.Module):
-    """MLP encoder for pre-extracted features (e.g., CMU-MOSEI).
+    """MLP encoder for pre-extracted features (e.g., CH-SIMS).
 
     Matches InfoReg's TriModalClassifier encoder architecture:
     Linear → ReLU → Dropout → Linear → ReLU

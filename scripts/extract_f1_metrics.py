@@ -2,11 +2,11 @@
 """Walk outputs/ and extract task-appropriate metrics from each completed training run.
 
 Per-task metrics:
-  - Classification (CREMA-D, AVE, KS, Twitter15, Sarcasm, MOSI, MOSEI):
+  - Classification (CREMA-D, AVE, KS, Twitter15, Sarcasm, MOSI, CH-SIMS):
         Acc (primary) and F1-macro at the best-Acc epoch.
   - Segmentation (BraTS 2021): Dice (overall) and WT/TC/ET sub-Dice at the
         best-Dice epoch. Acc/F1 are not applicable.
-  - Note: MOSI / MOSEI are *sentiment regression* tasks but the paper evaluates
+  - Note: MOSI / CH-SIMS are *sentiment regression* tasks but the paper evaluates
         them via binary positive/negative classification, so Acc/F1 is the
         appropriate metric here. Regression-only metrics (MAE, correlation)
         are not logged in train.log and would require re-running inference.
@@ -144,13 +144,13 @@ def main():
             "**Tasks differ in primary metric**:\n"
         )
         f.write(
-            "- **Classification** (CREMA-D, AVE, Kinetics-Sounds, Twitter15, Sarcasm, MOSI, MOSEI): Test Accuracy (primary) + F1-macro.\n"
+            "- **Classification** (CREMA-D, AVE, Kinetics-Sounds, Twitter15, Sarcasm, MOSI, CH-SIMS): Test Accuracy (primary) + F1-macro.\n"
         )
         f.write(
             "- **Segmentation** (BraTS 2021): Mean Dice (primary) + WT/TC/ET sub-Dice.\n\n"
         )
         f.write(
-            "**MOSI / MOSEI** are sentiment regression tasks evaluated as binary positive/negative "
+            "**MOSI / CH-SIMS** are sentiment regression tasks evaluated as binary positive/negative "
             "classification per the paper's protocol (matching MMPareto / OGM-GE / CGGM "
             "comparisons). Regression-specific metrics (MAE, Pearson correlation) are not "
             "logged in `train.log` and would require re-running inference.\n\n"

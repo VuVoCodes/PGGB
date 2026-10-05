@@ -1,6 +1,6 @@
 # Probe-Guided Gradient Boosting (PGGB) for Multimodal Learning
 
-Code release for **"Probe-Guided Gradient Balancing for Multimodal Learning"** (NeurIPS 2026 submission).
+Code release for **"Probe-Guided Gradient Balancing for Multimodal Learning"**, accepted at NeurIPS 2026 (poster).
 
 PGGB is a method for balanced multimodal learning that amplifies weaker modalities while preserving stronger ones, composing naturally with existing throttling techniques such as OGM-GE.
 
@@ -16,11 +16,11 @@ PGGB is a method for balanced multimodal learning that amplifies weaker modaliti
 ```
 .
 ├── src/
-│   ├── datasets/        # Dataset loaders (CREMA-D, AVE, KS, MOSEI, MOSI, Twitter15, Sarcasm, Food101)
+│   ├── datasets/        # Dataset loaders (CREMA-D, AVE, KS, CH-SIMS, MOSI, Twitter15, Sarcasm, Food101)
 │   ├── losses/          # PGGB loss/scheduler + CGGM baseline
 │   ├── models/          # Encoders, fusion, probes
 │   └── utils/           # Metrics, logging
-├── configs/             # Per-dataset YAML configs (cremad, ave, ks, mosei, mosi, twitter, sarcasm, food101)
+├── configs/             # Per-dataset YAML configs (cremad, ave, ks, chsims, mosi, twitter, sarcasm, food101)
 ├── scripts/
 │   ├── train.py         # Main training script
 │   ├── train_brats.py   # BraTS 2021 segmentation
@@ -29,7 +29,10 @@ PGGB is a method for balanced multimodal learning that amplifies weaker modaliti
 │   ├── prepare_*.{sh,py}        # Dataset preparation
 │   ├── sweep_*.sh                # Hyperparameter / ablation sweeps
 │   ├── post_hoc_probe_cremad.py # Post-hoc linear-probe protocol for §4.4
-│   ├── probe_stability_plot.py  # App. B.6 probe-stability figure
+│   ├── probe_stability_plot.py  # Probe-stability figure
+│   ├── probe_trajectory_early_plot.py # Early probe-trajectory figure
+│   ├── post_hoc_probe_sentiment.py    # Post-hoc probes, sentiment benchmarks
+│   ├── alpha_multiseed.sh             # Multi-seed boost-strength sweep
 │   ├── hp_sensitivity_plots.py  # App. B.5 hyperparameter-sensitivity figure
 │   └── ablation_*.py             # Ablation/figure generators
 ├── pyproject.toml       # Package metadata + dependencies
@@ -67,7 +70,7 @@ Standard splits used in the paper. Place each dataset under `data/<dataset>/`:
 | CREMA-D      | audio, video           | 6,698 / — / 744              | https://github.com/CheyneyComputerScience/CREMA-D |
 | AVE          | audio, video           | 3,328 / 413 / 402            | https://sites.google.com/view/audiovisualresearch |
 | Kinetics-Sounds | audio, video        | 22,408 / — / 3,000           | https://github.com/cvdfoundation/kinetics-dataset |
-| CMU-MOSEI    | text, audio, visual    | 16,326 / 1,871 / 4,659       | https://github.com/A2Zadeh/CMU-MultimodalSDK    |
+| CH-SIMS      | text, audio, visual    | 1,368 / 456 / 457            | https://github.com/thuiar/MMSA                  |
 | CMU-MOSI     | text, audio, visual    | 1,284 / 229 / 686            | https://github.com/A2Zadeh/CMU-MultimodalSDK    |
 | Twitter15    | text, image            | 3,179 / 1,122 / 1,037        | https://github.com/jefferyYu/TomBERT             |
 | Sarcasm (MMSD-v1) | text, image       | 19,816 / 2,410 / 2,409       | https://github.com/headacheboy/data-of-multimodal-sarcasm-detection |
@@ -97,7 +100,7 @@ python scripts/train.py \
     --num-frames 3 --fps 3 \
     --seed 42 --epochs 100
 
-# PGGB + OGM-GE composition (paper's headline result, +2.31 pp on CREMA-D)
+# PGGB + OGM-GE composition (paper's headline result on CREMA-D)
 python scripts/train.py \
     --config configs/cremad.yaml \
     --mode adaptive --asgml-mode continuous \
@@ -114,9 +117,10 @@ python scripts/train.py \
 bash scripts/sweep_cremad.sh phase2     # CREMA-D 5-seed
 bash scripts/sweep_ave.sh                # AVE
 bash scripts/sweep_ks.sh                 # Kinetics-Sounds
-bash scripts/sweep_mosei.sh              # CMU-MOSEI
+bash scripts/sweep_chsims.sh             # CH-SIMS
 bash scripts/sweep_mosi.sh               # CMU-MOSI
-# Twitter15, Sarcasm: see scripts/sweep_*.sh per dataset
+# Twitter15 and Sarcasm have no dedicated sweep script. Run train.py directly
+# with configs/twitter.yaml or configs/sarcasm.yaml, varying --seed, as in Quick start.
 bash scripts/sweep_brats.sh              # BraTS 2021
 ```
 
@@ -145,6 +149,30 @@ python scripts/probe_stability_plot.py
 python scripts/hp_sensitivity_plots.py
 ```
 
+### Boost-strength sensitivity on the sentiment benchmarks (multi-seed)
+```bash
+bash scripts/alpha_multiseed.sh          # CH-SIMS and CMU-MOSI, 5 alpha values x 5 seeds
+```
+
+### Optimizer dependence of the boost actuation
+```bash
+# Per-step transmission logging is opt-in through an environment variable
+PGGB_UPDATE_NORMS_FILE=norms.jsonl python scripts/train.py --config configs/mosi.yaml \
+    --mode adaptive --asgml-mode continuous --continuous-alpha 0.75 --seed 42
+bash scripts/rebuttal_mosi_sgd_acc.sh    # CMU-MOSI Adam vs SGD accuracy contrast
+```
+
+### Early probe trajectory
+```bash
+# train.py logs per-modality EMA probe accuracy and the signed gap to tensorboard
+python scripts/probe_trajectory_early_plot.py
+```
+
+### Post-hoc probes on the sentiment benchmarks
+```bash
+python scripts/post_hoc_probe_sentiment.py
+```
+
 ## Key hyperparameters
 
 PGGB uses **identical hyperparameters across all datasets**:
@@ -168,7 +196,7 @@ If you use this code or method in your research, please cite:
 ```bibtex
 @inproceedings{vu2026pggb,
   title={Probe-Guided Gradient Balancing for Multimodal Learning},
-  author={Vu, Vo Quoc and Fayek, Haytham and Nguyen, Thuy},
+  author={Vo, Vu and Fayek, Haytham and Nguyen, Thuy},
   booktitle={Advances in Neural Information Processing Systems},
   year={2026}
 }
@@ -180,7 +208,7 @@ MIT. See `LICENSE`.
 
 ## Contact
 
-- Vo Quoc Vu — `s3575819@rmit.edu.vn`
+- Vu Vo — `s3575819@rmit.edu.vn`
 - Haytham Fayek — `haytham.fayek@rmit.edu.au`
 - Thuy Nguyen — `thuy.nguyen43@rmit.edu.vn`
 

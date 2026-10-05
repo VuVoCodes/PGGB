@@ -33,7 +33,9 @@ Usage:
 """
 
 import argparse
+import json
 import math
+import os
 import sys
 import yaml
 import random
@@ -54,7 +56,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models import MultimodalModel, ProbeManager
 from src.models.fusion import ConcatFusion
-from src.datasets import CREMADDataset, AVEDataset, KineticsSoundsDataset, MOSEIDataset, CMUMOSIDataset, SarcasmDataset, TwitterDataset, Food101Dataset
+from src.datasets import CREMADDataset, AVEDataset, KineticsSoundsDataset, CHSIMSDataset, CMUMOSIDataset, SarcasmDataset, TwitterDataset, Food101Dataset
 from src.losses import (
     ASGMLLoss,
     ASGMLScheduler,
@@ -93,10 +95,10 @@ def get_dataset(config: dict, split: str):
         # KS uses 'val' instead of 'test' for evaluation
         ks_split = "val" if split == "test" else split
         return KineticsSoundsDataset(root=root, split=ks_split, num_frames=num_frames)
-    elif name == "mosei":
-        # MOSEI uses 'valid' instead of 'test' for validation, and 'test' for final eval
-        mosei_split = split if split == "train" else "test"
-        return MOSEIDataset(root=root, split=mosei_split)
+    elif name == "chsims":
+        # Evaluation uses the CH-SIMS 'test' split for both validation and final eval
+        chsims_split = split if split == "train" else "test"
+        return CHSIMSDataset(root=root, split=chsims_split)
     elif name == "mosi":
         mosi_split = "test" if split == "test" else split
         return CMUMOSIDataset(root=root, split=mosi_split)
@@ -1188,7 +1190,7 @@ def apply_ogm_ge(
     considered dominant and their gradients are scaled down.
 
     Applies to both Conv2d (4D) and Linear (2D) weight gradients, enabling
-    use with MLP encoders (e.g., for pre-extracted features in MOSEI).
+    use with MLP encoders (e.g., for pre-extracted features in CH-SIMS).
 
     Parameters
     ----------
@@ -2137,6 +2139,30 @@ def train_epoch(
                                 else:
                                     param.grad.data.mul_(soft_scale)
 
+        # ========== Update-Norm Instrumentation (rebuttal E3) ==========
+        # Active only when PGGB_UPDATE_NORMS_FILE is set. Records, per step,
+        # the applied boost scales, post-scaling encoder gradient norms, and
+        # the effective parameter update norm per modality encoder.
+        _norms_file = os.environ.get("PGGB_UPDATE_NORMS_FILE")
+        if _norms_file and scheduler.mode == "continuous":
+            with torch.no_grad():
+                _pre_params = {
+                    m: torch.cat([
+                        p.detach().flatten()
+                        for n, p in model.named_parameters()
+                        if f"encoders.{m}" in n
+                    ]).clone()
+                    for m in modalities
+                }
+                _grad_norm_scaled = {
+                    m: torch.cat([
+                        p.grad.detach().flatten()
+                        for n, p in model.named_parameters()
+                        if f"encoders.{m}" in n and p.grad is not None
+                    ]).norm().item()
+                    for m in modalities
+                }
+
         # ========== Optimizer Step ==========
         # NOTE: Fusion head always updates regardless of modality schedules
         if use_amp and scaler is not None:
@@ -2146,6 +2172,25 @@ def train_epoch(
             scaler.update()
         else:
             optimizer.step()
+
+        if _norms_file and scheduler.mode == "continuous":
+            with torch.no_grad():
+                _update_norm = {
+                    m: (torch.cat([
+                        p.detach().flatten()
+                        for n, p in model.named_parameters()
+                        if f"encoders.{m}" in n
+                    ]) - _pre_params[m]).norm().item()
+                    for m in modalities
+                }
+            _rec = {
+                "step": int(global_step),
+                "scales": {m: float(scheduler.current_continuous_scales[m]) for m in modalities},
+                "grad_norm_scaled": _grad_norm_scaled,
+                "update_norm": _update_norm,
+            }
+            with open(_norms_file, "a") as _f:
+                _f.write(json.dumps(_rec) + "\n")
 
         # ========== Update Scheduler ==========
         scheduler.dynamics.update(
@@ -2292,6 +2337,14 @@ def train_epoch(
                     )
                 if utilization_gap is not None:
                     writer.add_scalar("probe/utilization_gap", utilization_gap, global_step)
+                # Per-modality EMA-smoothed probe accuracy and the signed gap.
+                # Used for the early-probe-trajectory figure (App. B.10).
+                for _m, _v in probe_manager.accuracy_ema.items():
+                    writer.add_scalar(f"probe/ema_{_m}", _v, global_step)
+                _emas = probe_manager.accuracy_ema
+                if len(_emas) == 2:
+                    _a, _b = list(_emas.keys())
+                    writer.add_scalar("probe/ema_signed_gap", _emas[_a] - _emas[_b], global_step)
 
                 # Log learning dynamics (dual-signal)
                 learning_speeds = scheduler.dynamics.compute_learning_speed()
@@ -2698,12 +2751,12 @@ def main():
     modalities = config["dataset"]["modalities"]
 
     # For MLP backbone (pre-extracted features), detect actual feature dims from dataset
-    if config["model"]["backbone"] == "mlp" and config["dataset"]["name"] == "mosei":
+    if config["model"]["backbone"] == "mlp" and config["dataset"]["name"] == "chsims":
         config["dataset"]["text_dim"] = train_dataset.text_dim
         config["dataset"]["audio_dim"] = train_dataset.audio_dim
         config["dataset"]["visual_dim"] = train_dataset.visual_dim
         logger.info(
-            f"MOSEI feature dims: text={train_dataset.text_dim}, "
+            f"CH-SIMS feature dims: text={train_dataset.text_dim}, "
             f"audio={train_dataset.audio_dim}, vision={train_dataset.visual_dim}"
         )
     elif config["model"]["backbone"] == "mlp" and config["dataset"]["name"] == "mosi":

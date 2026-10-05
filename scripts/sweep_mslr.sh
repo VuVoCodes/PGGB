@@ -7,7 +7,7 @@
 #   AVE:        audio:0.5/visual:1.0
 #   KS:         audio:0.5/visual:1.0
 #   MOSI:       text:0.5/audio:1.0/visual:1.0
-#   MOSEI:      text:0.5/audio:1.0/vision:1.0
+#   CH-SIMS:      text:0.5/audio:1.0/vision:1.0
 #   Twitter15:  text:0.5/image:1.0
 #   Sarcasm:    text:0.5/image:1.0
 #
@@ -61,11 +61,11 @@ declare -A DATASETS
 DATASETS[ave]="configs/ave.yaml|audio:0.5,visual:1.0|"
 DATASETS[ks]="configs/kinetics_sounds.yaml|audio:0.5,visual:1.0|"
 DATASETS[mosi]="configs/mosi.yaml|text:0.5,audio:1.0,visual:1.0|"
-DATASETS[mosei]="configs/mosei.yaml|text:0.5,audio:1.0,vision:1.0|"
+DATASETS[chsims]="configs/chsims.yaml|text:0.5,audio:1.0,vision:1.0|"
 DATASETS[twitter]="configs/twitter.yaml|text:0.5,image:1.0|"
 DATASETS[sarcasm]="configs/sarcasm.yaml|text:0.5,image:1.0|"
 
-ORDER=(mosi twitter sarcasm ave mosei ks)
+ORDER=(mosi twitter sarcasm ave chsims ks)
 
 for DS in "${ORDER[@]}"; do
     SPEC="${DATASETS[$DS]}"

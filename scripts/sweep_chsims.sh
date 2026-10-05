@@ -1,5 +1,5 @@
 #!/bin/bash
-# CMU-MOSEI Dataset Sweep - 3-Modality Sentiment Analysis (text + audio + vision)
+# CH-SIMS Dataset Sweep - 3-Modality Sentiment Analysis (text + audio + vision)
 #
 # Methods:
 #   1. Baseline (joint training) - Adam
@@ -8,16 +8,16 @@
 #   4. ASGML boost only (α=0.5) - Adam
 #
 # Usage:
-#   bash scripts/sweep_mosei.sh phase1     # Single seed (seed=42), all methods
-#   bash scripts/sweep_mosei.sh phase2     # All configs x 5 seeds
+#   bash scripts/sweep_chsims.sh phase1     # Single seed (seed=42), all methods
+#   bash scripts/sweep_chsims.sh phase2     # All configs x 5 seeds
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 TRAIN_SCRIPT="$PROJECT_DIR/scripts/train.py"
-CONFIG="$PROJECT_DIR/configs/mosei.yaml"
-OUTPUT_BASE="$PROJECT_DIR/outputs/sweep_mosei"
+CONFIG="$PROJECT_DIR/configs/chsims.yaml"
+OUTPUT_BASE="$PROJECT_DIR/outputs/sweep_chsims"
 
 # Conda activation
 eval "$(conda shell.bash hook 2>/dev/null)" || { source ~/miniconda3/etc/profile.d/conda.sh 2>/dev/null || source ~/anaconda3/etc/profile.d/conda.sh 2>/dev/null; }
@@ -65,27 +65,27 @@ run_phase1() {
     local SEED=42
 
     echo "============================================================"
-    echo "PHASE 1: Single-seed MOSEI comparison, seed=$SEED"
+    echo "PHASE 1: Single-seed CH-SIMS comparison, seed=$SEED"
     echo "============================================================"
 
     # 1. Baseline (joint training)
-    run_experiment "mosei_baseline" "baseline" $SEED \
+    run_experiment "chsims_baseline" "baseline" $SEED \
         --epochs 100
 
     # 2. OGM-GE only (N-modality generalized)
-    run_experiment "mosei_ogm_ge" "adaptive" $SEED \
+    run_experiment "chsims_ogm_ge" "adaptive" $SEED \
         --ogm-ge --alpha 0.8 \
         --asgml-mode continuous --continuous-alpha 0 \
         --epochs 100
 
     # 3. ASGML boost + OGM-GE (α=0.75) — best from CREMA-D
-    run_experiment "mosei_boost_ogm_a075" "adaptive" $SEED \
+    run_experiment "chsims_boost_ogm_a075" "adaptive" $SEED \
         --ogm-ge --alpha 0.8 \
         --asgml-mode continuous --continuous-alpha 0.75 \
         --epochs 100
 
     # 4. ASGML boost only (no OGM-GE)
-    run_experiment "mosei_boost_only" "adaptive" $SEED \
+    run_experiment "chsims_boost_only" "adaptive" $SEED \
         --asgml-mode continuous --continuous-alpha 0.5 \
         --epochs 100
 
@@ -98,7 +98,7 @@ run_phase1() {
     # Print results summary
     echo "Results summary (best test accuracy per run):"
     echo "----------------------------------------------"
-    for dir in "$OUTPUT_BASE"/mosei_*_seed${SEED}; do
+    for dir in "$OUTPUT_BASE"/chsims_*_seed${SEED}; do
         if [ -d "$dir" ] && [ -f "$dir/train.log" ]; then
             local run_name=$(basename "$dir")
             local best_acc=$(grep "New best model" "$dir/train.log" | tail -1 | grep -oP 'accuracy: \K[0-9.]+')
@@ -112,14 +112,14 @@ run_phase2() {
     local -a SEEDS=(42 123 456 789 1024)
 
     local -a TOP_CONFIGS=(
-        "mosei_boost_ogm_a075:adaptive:--ogm-ge --alpha 0.8 --asgml-mode continuous --continuous-alpha 0.75 --epochs 100"
-        "mosei_ogm_ge:adaptive:--ogm-ge --alpha 0.8 --asgml-mode continuous --continuous-alpha 0 --epochs 100"
-        "mosei_boost_only:adaptive:--asgml-mode continuous --continuous-alpha 0.5 --epochs 100"
-        "mosei_baseline:baseline:--epochs 100"
+        "chsims_boost_ogm_a075:adaptive:--ogm-ge --alpha 0.8 --asgml-mode continuous --continuous-alpha 0.75 --epochs 100"
+        "chsims_ogm_ge:adaptive:--ogm-ge --alpha 0.8 --asgml-mode continuous --continuous-alpha 0 --epochs 100"
+        "chsims_boost_only:adaptive:--asgml-mode continuous --continuous-alpha 0.5 --epochs 100"
+        "chsims_baseline:baseline:--epochs 100"
     )
 
     echo "============================================================"
-    echo "PHASE 2: Multi-seed MOSEI validation"
+    echo "PHASE 2: Multi-seed CH-SIMS validation"
     echo "Seeds: ${SEEDS[*]}"
     echo "Configs: ${#TOP_CONFIGS[@]}"
     echo "Total runs: $((${#TOP_CONFIGS[@]} * ${#SEEDS[@]}))"

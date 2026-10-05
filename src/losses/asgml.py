@@ -623,7 +623,7 @@ class ASGMLLoss(nn.Module):
     def __init__(
         self,
         modalities: List[str],
-        gamma: float = 4.0,  # Unimodal regularization weight (matching ARL)
+        gamma: float = 1.0,  # Unimodal regularization weight (paper Eq. 12 default)
     ):
         """
         Args:

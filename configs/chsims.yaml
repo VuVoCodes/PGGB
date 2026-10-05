@@ -1,16 +1,15 @@
-# CMU-MOSEI Dataset Configuration
-# Multimodal sentiment analysis (3 modalities: text, audio, vision)
+# CH-SIMS Dataset Configuration (Yu et al., ACL 2020)
+# Mandarin Chinese multimodal sentiment analysis (3 modalities: text, audio, vision)
 # 3-class sentiment: negative / neutral / positive
 
 # Dataset
 dataset:
-  name: mosei
-  root: data/MOSEI
+  name: chsims
+  root: data/CH-SIMS
   num_classes: 3
   modalities: [text, audio, vision]
   # Pre-extracted feature dimensions (auto-detected from pickle at runtime)
-  # MMSA format: text=768, audio=33, vision=709
-  # InfoReg format: text=300, audio=74, vision=35
+  # MMSA unaligned_39.pkl: text=768, audio=33, vision=709
   text_dim: 768
   audio_dim: 33
   visual_dim: 709

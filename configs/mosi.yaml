@@ -12,7 +12,7 @@ dataset:
   audio_dim: 74
   visual_dim: 35
 
-# Model — MLP encoders for pre-extracted features (same as MOSEI)
+# Model — MLP encoders for pre-extracted features (same as CH-SIMS)
 model:
   backbone: mlp
   pretrained: false

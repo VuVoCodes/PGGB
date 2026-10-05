@@ -75,8 +75,8 @@ run_phase1() {
         --epochs 100 \
         --cggm-rou 1.3 --cggm-lamda 0.2
 
-    # --- MOSEI ---
-    run_experiment "mosei_cggm" "mosei.yaml" "cggm" $SEED \
+    # --- CH-SIMS ---
+    run_experiment "chsims_cggm" "chsims.yaml" "cggm" $SEED \
         --epochs 100 \
         --cggm-rou 1.3 --cggm-lamda 0.2
 
@@ -124,8 +124,8 @@ run_phase2() {
             --epochs 100 \
             --cggm-rou 1.3 --cggm-lamda 0.2
 
-        # MOSEI
-        run_experiment "mosei_cggm" "mosei.yaml" "cggm" $seed \
+        # CH-SIMS
+        run_experiment "chsims_cggm" "chsims.yaml" "cggm" $seed \
             --epochs 100 \
             --cggm-rou 1.3 --cggm-lamda 0.2
 

@@ -3,7 +3,7 @@
 Extract pre-computed BERT (text) + ResNet18 (image) features for text+image datasets.
 
 One-time pre-extraction to speed up subsequent training. Mirrors the
-pre-extracted-features pattern used for MOSEI/MOSI.
+pre-extracted-features pattern used for CH-SIMS/MOSI.
 
 Output format:
     data/<dataset>/features/<split>.pt with keys:

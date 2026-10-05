@@ -71,7 +71,7 @@ class MultimodalModel(nn.Module):
         """Create encoder for a specific modality."""
         backbone = config.get("backbone", "resnet18")
 
-        # MLP encoder for pre-extracted features (e.g., MOSEI)
+        # MLP encoder for pre-extracted features (e.g., CH-SIMS)
         if backbone == "mlp":
             return MLPEncoder(
                 input_dim=config.get("input_dim", 300),
