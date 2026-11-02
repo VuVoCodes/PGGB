@@ -196,7 +196,7 @@ If you use this code or method in your research, please cite:
 ```bibtex
 @inproceedings{vu2026pggb,
   title={Probe-Guided Gradient Balancing for Multimodal Learning},
-  author={Vo, Vu and Fayek, Haytham and Nguyen, Thuy},
+  author={Vo, Vu and Fayek, Haytham M. and Nguyen, Thuy},
   booktitle={Advances in Neural Information Processing Systems},
   year={2026}
 }
@@ -209,7 +209,7 @@ MIT. See `LICENSE`.
 ## Contact
 
 - Vu Vo — `s3575819@rmit.edu.vn`
-- Haytham Fayek — `haytham.fayek@rmit.edu.au`
+- Haytham M. Fayek — `haytham.fayek@rmit.edu.au`
 - Thuy Nguyen — `thuy.nguyen43@rmit.edu.vn`
 
 School of Science, Engineering & Technology, RMIT University.

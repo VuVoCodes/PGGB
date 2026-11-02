@@ -11,7 +11,7 @@ requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
     {name = "Vu Vo", email = "s3575819@rmit.edu.vn"},
-    {name = "Haytham Fayek", email = "haytham.fayek@rmit.edu.au"},
+    {name = "Haytham M. Fayek", email = "haytham.fayek@rmit.edu.au"},
     {name = "Thuy Nguyen", email = "thuy.nguyen43@rmit.edu.vn"},
 ]
 keywords = ["multimodal learning", "gradient modulation", "modality imbalance", "probe", "deep learning"]
