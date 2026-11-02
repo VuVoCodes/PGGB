@@ -1,4 +1,4 @@
-# Probe-Guided Gradient Boosting (PGGB) for Multimodal Learning
+# Probe-Guided Gradient Balancing (PGGB) for Multimodal Learning
 
 Code release for **"Probe-Guided Gradient Balancing for Multimodal Learning"**, accepted at NeurIPS 2026 (poster).
 
@@ -225,7 +225,7 @@ MIT. See `LICENSE`.
 ## Contact
 
 - Vu Vo — `s3575819@rmit.edu.vn`
-- Haytham M. Fayek — `haytham.fayek@rmit.edu.au`
+- Haytham M. Fayek — `haytham.fayek@ieee.org`
 - Thuy Nguyen — `thuy.nguyen43@rmit.edu.vn`
 
 School of Science, Engineering & Technology, RMIT University.
