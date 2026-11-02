@@ -10,8 +10,13 @@
 # Estimated: 15 × ~22 min = ~5.5h
 
 set -u
-cd /home/main/AsynchronousFunction
-source /home/main/miniconda3/etc/profile.d/conda.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
+# Conda profile. Override with the CONDA_SH environment variable.
+CONDA_SH="${CONDA_SH:-$HOME/miniconda3/etc/profile.d/conda.sh}"
+# shellcheck source=/dev/null
+source "$CONDA_SH"
 conda activate phd
 
 ALPHAS=(0.25 0.5 1.0 1.25 1.5)

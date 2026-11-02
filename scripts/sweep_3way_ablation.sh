@@ -13,8 +13,13 @@
 # Output: outputs/sweep_3way_ablation/ (separate dir — does NOT override any existing results)
 
 set -u
-cd /home/main/AsynchronousFunction
-source /home/main/miniconda3/etc/profile.d/conda.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
+# Conda profile. Override with the CONDA_SH environment variable.
+CONDA_SH="${CONDA_SH:-$HOME/miniconda3/etc/profile.d/conda.sh}"
+# shellcheck source=/dev/null
+source "$CONDA_SH"
 conda activate phd
 
 SEEDS=(42 123 456 789 1024)
@@ -23,10 +28,10 @@ mkdir -p "$OUTDIR"
 LOGFILE="$OUTDIR/sweep.log"
 
 # Safety: abort if any target name exists OUTSIDE our own output dir
-OUTDIR_ABS="/home/main/AsynchronousFunction/$OUTDIR"
+OUTDIR_ABS="$PROJECT_DIR/$OUTDIR"
 for SEED in "${SEEDS[@]}"; do
   EXPNAME="monitor_ogm_noboost_seed${SEED}"
-  COLLISIONS=$(find /home/main/AsynchronousFunction/outputs -maxdepth 3 -type d -name "$EXPNAME" 2>/dev/null | grep -Fv "$OUTDIR_ABS/" || true)
+  COLLISIONS=$(find "$PROJECT_DIR/outputs" -maxdepth 3 -type d -name "$EXPNAME" 2>/dev/null | grep -Fv "$OUTDIR_ABS/" || true)
   if [ -n "$COLLISIONS" ]; then
     echo "ABORT: Name collision for $EXPNAME outside $OUTDIR_ABS:" >&2
     echo "$COLLISIONS" >&2

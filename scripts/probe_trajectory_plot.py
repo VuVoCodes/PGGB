@@ -3,6 +3,7 @@
 for {baseline, OGM-GE, Boost+OGM-GE} on CREMA-D 3-frame and produce
 appendix figure with 2 panels (audio + video).
 """
+import os
 from pathlib import Path
 import glob
 import numpy as np
@@ -11,13 +12,18 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from tensorboard.backend.event_processing import event_accumulator
 
-OUT = Path("/home/main/AsynchronousFunction/Manuscript/figures/probe_trajectories.pdf")
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
+
+OUT = PROJECT_ROOT / "figures" / "probe_trajectories.pdf"
 
 # 5-seed runs for the three conditions
 RUNS = {
-    "Baseline":      sorted(glob.glob("/home/main/AsynchronousFunction/outputs/sweep_3f/3f_baseline_seed*/tensorboard/events*")),
-    "OGM-GE":        sorted(glob.glob("/home/main/AsynchronousFunction/outputs/sweep_3f/3f_ogm_ge_seed*/tensorboard/events*")),
-    "Boost+OGM-GE":  sorted(glob.glob("/home/main/AsynchronousFunction/outputs/sweep_3f/3f_boost_ogm_a075_seed*/tensorboard/events*")),
+    "Baseline":      sorted(glob.glob(f"{PROJECT_ROOT}/outputs/sweep_3f/3f_baseline_seed*/tensorboard/events*")),
+    "OGM-GE":        sorted(glob.glob(f"{PROJECT_ROOT}/outputs/sweep_3f/3f_ogm_ge_seed*/tensorboard/events*")),
+    "Boost+OGM-GE":  sorted(glob.glob(f"{PROJECT_ROOT}/outputs/sweep_3f/3f_boost_ogm_a075_seed*/tensorboard/events*")),
 }
 
 COLORS = {"Baseline": "#888888", "OGM-GE": "#4673AA", "Boost+OGM-GE": "#3C8C5A"}
@@ -71,5 +77,6 @@ for ax, modality, ylabel in zip(axes, ["audio", "visual"],
 axes[0].legend(loc="lower right", fontsize=8, frameon=False)
 
 fig.tight_layout()
+OUT.parent.mkdir(parents=True, exist_ok=True)
 fig.savefig(OUT, bbox_inches="tight")
 print(f"Wrote {OUT}")

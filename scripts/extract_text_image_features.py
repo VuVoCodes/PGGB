@@ -30,6 +30,11 @@ from torchvision import models, transforms
 from tqdm import tqdm
 from transformers import BertModel, BertTokenizer
 
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -92,7 +97,7 @@ class SarcasmRawDataset(Dataset):
 
 def extract_sarcasm(split):
     """Extract features for one Sarcasm split."""
-    base = "/home/main/AsynchronousFunction/data/Sarcasm/mmsd2/mmsd-v1"
+    base = str(PROJECT_ROOT / "data" / "Sarcasm" / "mmsd2" / "mmsd-v1")
     if split == "train":
         files = [f"{base}/train-{i:05d}-of-00004.parquet" for i in range(4)]
     elif split == "valid":
@@ -145,8 +150,8 @@ class TwitterRawDataset(Dataset):
 
 def extract_twitter(split):
     """Extract features for one Twitter15 split."""
-    base = "/home/main/AsynchronousFunction/data/Twitter15/text_data/absa_data/twitter2015"
-    img_dir = "/home/main/AsynchronousFunction/data/Twitter15/IJCAI2019_data/twitter2015_images"
+    base = str(PROJECT_ROOT / "data" / "Twitter15" / "text_data" / "absa_data" / "twitter2015")
+    img_dir = str(PROJECT_ROOT / "data" / "Twitter15" / "IJCAI2019_data" / "twitter2015_images")
     split_map = {"train": "train.tsv", "valid": "dev.tsv", "test": "test.tsv"}
     ds = TwitterRawDataset(f"{base}/{split_map[split]}", img_dir)
     print(f"Twitter {split}: {len(ds)} samples")
@@ -200,7 +205,7 @@ class Food101RawDataset(Dataset):
 
 def extract_food101(split):
     """Extract features for one Food101 split (train or test)."""
-    base = "/home/main/AsynchronousFunction/data/Food101/UPMC-Food-101"
+    base = str(PROJECT_ROOT / "data" / "Food101" / "UPMC-Food-101")
     train_csv = f"{base}/texts/train_titles.csv"
     test_csv = f"{base}/texts/test_titles.csv"
     train_img = f"{base}/images/train"

@@ -4,7 +4,9 @@
 set -e
 
 source activate phd 2>/dev/null || true
-cd /home/main/AsynchronousFunction
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
 
 CONFIG=configs/food101.yaml
 OUT=outputs/sweep_food101

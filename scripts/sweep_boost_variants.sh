@@ -4,8 +4,13 @@
 # Goal: scoping study for §5 future-work discussion. NOT a benchmark replacement.
 
 set -u
-cd /home/main/AsynchronousFunction
-source /home/main/miniconda3/etc/profile.d/conda.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
+# Conda profile. Override with the CONDA_SH environment variable.
+CONDA_SH="${CONDA_SH:-$HOME/miniconda3/etc/profile.d/conda.sh}"
+# shellcheck source=/dev/null
+source "$CONDA_SH"
 conda activate phd
 
 OUTDIR="outputs/sweep_boost_variants"

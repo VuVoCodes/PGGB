@@ -28,6 +28,11 @@ from torchvision import models, transforms
 from PIL import Image
 from transformers import BertModel, BertTokenizer
 
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
+
 PROJECT_ROOT = str(Path(__file__).parent.parent)
 sys.path.insert(0, PROJECT_ROOT)
 
@@ -57,7 +62,7 @@ class Food101RawE2E(Dataset):
     """UPMC-Food101 raw dataset for end-to-end fine-tuning."""
 
     def __init__(self, split, tokenizer, max_len=50):
-        base = "/home/main/AsynchronousFunction/data/Food101/UPMC-Food-101"
+        base = str(PROJECT_ROOT / "data" / "Food101" / "UPMC-Food-101")
         self.image_dir = f"{base}/images/{split}"
         self.tokenizer = tokenizer
         self.max_len = max_len

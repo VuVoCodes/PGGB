@@ -1,6 +1,6 @@
 #!/bin/bash
 set -uo pipefail
-PYTHON="/home/main/miniconda3/envs/phd/bin/python"
+PYTHON="${PYTHON:-python}"
 TRAIN="scripts/train_brats.py"
 OUT="outputs/sweep_brats"
 mkdir -p "$OUT"

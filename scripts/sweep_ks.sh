@@ -23,7 +23,7 @@ CONFIG="$PROJECT_DIR/configs/kinetics_sounds.yaml"
 OUTPUT_BASE="$PROJECT_DIR/outputs/sweep_ks"
 
 # Use phd python directly to avoid conda run buffering
-PYTHON="/home/main/miniconda3/envs/phd/bin/python"
+PYTHON="${PYTHON:-python}"
 
 mkdir -p "$OUTPUT_BASE"
 

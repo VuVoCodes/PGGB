@@ -13,13 +13,19 @@ Per-task metrics:
 
 Output: docs/experiments/saved_models_metrics.md
 """
+import os
 import re
 import statistics
 from collections import defaultdict
 from pathlib import Path
 
-ROOT = Path("/home/main/AsynchronousFunction/outputs")
-REPORT = Path("/home/main/AsynchronousFunction/docs/experiments/saved_models_metrics.md")
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
+
+ROOT = PROJECT_ROOT / "outputs"
+REPORT = PROJECT_ROOT / "docs" / "experiments" / "saved_models_metrics.md"
 
 # Classification: "Epoch 100: Train Loss=0.83, Train Acc=0.99, Test Acc=0.71, Test F1=0.71, ..."
 CLS_EPOCH_RE = re.compile(

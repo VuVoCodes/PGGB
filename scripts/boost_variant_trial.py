@@ -19,11 +19,16 @@ Usage:
 import argparse, math, sys, os
 from pathlib import Path
 
-ROOT = Path("/home/main/AsynchronousFunction")
+ROOT = PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 # Monkey-patch BEFORE importing train.py
 from src.losses.asgml import ASGMLScheduler
+
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
 
 _ORIG = ASGMLScheduler.get_continuous_scales
 

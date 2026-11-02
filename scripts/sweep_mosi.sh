@@ -11,7 +11,7 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TRAIN_SCRIPT="$PROJECT_DIR/scripts/train.py"
 CONFIG="$PROJECT_DIR/configs/mosi.yaml"
 OUTPUT_BASE="$PROJECT_DIR/outputs/sweep_mosi"
-PYTHON="/home/main/miniconda3/envs/phd/bin/python"
+PYTHON="${PYTHON:-python}"
 
 mkdir -p "$OUTPUT_BASE"
 

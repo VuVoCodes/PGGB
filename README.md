@@ -61,6 +61,22 @@ Or with the provided `requirements.txt`:
 pip install -r requirements.txt
 ```
 
+## Paths and environment
+
+Scripts resolve the project root from their own location, so they run from any checkout and any
+working directory. Three environment variables override the defaults:
+
+| Variable    | Default                                   | Purpose                                  |
+|-------------|-------------------------------------------|------------------------------------------|
+| `PGGB_ROOT` | repository root (resolved from the script) | Base for `data/`, `outputs/`, `figures/` |
+| `PYTHON`    | `python`                                   | Interpreter used by the sweep scripts    |
+| `CONDA_SH`  | `$HOME/miniconda3/etc/profile.d/conda.sh`  | Conda profile sourced by the sweep scripts |
+
+```bash
+# Example: data and outputs living outside the checkout
+PGGB_ROOT=/mnt/scratch/pggb python scripts/post_hoc_probe_cremad.py
+```
+
 ## Datasets
 
 Standard splits used in the paper. Place each dataset under `data/<dataset>/`:

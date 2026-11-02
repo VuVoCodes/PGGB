@@ -11,6 +11,7 @@ If the post-hoc result disagrees because of protocol (not feature quality), this
 script should reproduce the live numbers. If it agrees with the 50-epoch post-hoc,
 then the discrepancy is genuinely about feature quality at final vs mid training.
 """
+import os
 from pathlib import Path
 import sys
 import numpy as np
@@ -22,6 +23,11 @@ from torch.utils.data import DataLoader
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.datasets import CREMADDataset
 from src.models import MultimodalModel, ProbeManager
+
+
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.backends.cudnn.deterministic = True
@@ -120,7 +126,7 @@ def run_live_style_probe(train_feats, train_labels, test_feats, test_labels,
     return {m: results[m]["accuracy"] for m in modalities}
 
 
-ROOT = "/home/main/AsynchronousFunction/outputs/sweep_3f"
+ROOT = str(PROJECT_ROOT / "outputs" / "sweep_3f")
 for method in ["3f_baseline", "3f_boost_only", "3f_boost_ogm_a075"]:
     print(f"\n=== {method} (5 seeds) ===")
     acc_a, acc_v = [], []

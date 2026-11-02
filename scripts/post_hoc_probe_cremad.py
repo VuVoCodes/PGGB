@@ -14,6 +14,7 @@ Usage:
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,6 +31,10 @@ from src.datasets import CREMADDataset
 from src.models import MultimodalModel
 
 
+# Project root. Override with the PGGB_ROOT environment variable, otherwise it is
+# resolved relative to this file so the script runs from any checkout.
+PROJECT_ROOT = Path(os.environ.get("PGGB_ROOT", Path(__file__).resolve().parents[1]))
+
 def get_dataset(config, split):
     name = config["dataset"]["name"]
     assert name == "cremad", f"Only CREMA-D supported; got {name}"
@@ -41,7 +46,7 @@ def get_dataset(config, split):
     )
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-ROOT = Path("/home/main/AsynchronousFunction/outputs/sweep_3f")
+ROOT = PROJECT_ROOT / "outputs" / "sweep_3f"
 
 # Determinism for reproducibility across runs
 torch.backends.cudnn.deterministic = True
